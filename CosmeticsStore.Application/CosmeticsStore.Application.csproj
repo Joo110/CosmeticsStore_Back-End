@@ -1,0 +1,28 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+	<PropertyGroup>
+		<TargetFramework>net8.0</TargetFramework>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<Nullable>enable</Nullable>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<!-- AutoMapper (shared mapping profiles) -->
+		<PackageReference Include="AutoMapper" Version="12.0.1" />
+		<PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="12.0.1" />
+
+		<!-- FluentValidation for validators in application layer -->
+		<PackageReference Include="FluentValidation" Version="12.1.1" />
+		<PackageReference Include="FluentValidation.DependencyInjectionExtensions" Version="12.1.1" />
+
+		<!-- MediatR -->
+		<PackageReference Include="MediatR" Version="12.4.1" />
+
+		<!-- JWT tokens (if application layer handles tokens) -->
+		<PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.15.0" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<ProjectReference Include="..\CosmeticsStore.Domain\CosmeticsStore.Domain.csproj" />
+		<ProjectReference Include="..\CosmeticsStore.Infrastructure\CosmeticsStore.Infrastructure.csproj" />
+	</ItemGroup>
+</Project>

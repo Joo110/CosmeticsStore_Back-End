@@ -1,0 +1,62 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.14.36623.8 d17.14
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CosmeticsStore", "CosmeticsStore.csproj", "{D61FA64A-3721-4C3C-AD04-A64676E96C83}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{02EA681E-C7D8-13C7-8484-4AC65E1B71E8}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{D5DA0DD3-AFDC-4F8B-8C7C-91289AC355B8}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{586ECBD4-AF50-4FF3-A204-066504E93277}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CosmeticsStore.Application", "..\CosmeticsStore.Application\CosmeticsStore.Application.csproj", "{3AFD5689-5A81-47B9-B013-1B240CC4D9DC}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CosmeticsStore.Domain", "..\CosmeticsStore.Domain\CosmeticsStore.Domain.csproj", "{7FE50CBB-3422-418C-A456-21AB76C0337C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CosmeticsStore.Infrastructure", "..\CosmeticsStore.Infrastructure\CosmeticsStore.Infrastructure.csproj", "{4F95E135-C39D-4764-918A-8B9599F7CC1F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CosmeticsStore.SharedKernel", "..\CosmeticsStore.SharedKernel\CosmeticsStore.SharedKernel.csproj", "{70CADB13-951D-4DC3-8DFB-6E8342805CD5}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{D61FA64A-3721-4C3C-AD04-A64676E96C83}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D61FA64A-3721-4C3C-AD04-A64676E96C83}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D61FA64A-3721-4C3C-AD04-A64676E96C83}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D61FA64A-3721-4C3C-AD04-A64676E96C83}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3AFD5689-5A81-47B9-B013-1B240CC4D9DC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3AFD5689-5A81-47B9-B013-1B240CC4D9DC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3AFD5689-5A81-47B9-B013-1B240CC4D9DC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3AFD5689-5A81-47B9-B013-1B240CC4D9DC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7FE50CBB-3422-418C-A456-21AB76C0337C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7FE50CBB-3422-418C-A456-21AB76C0337C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7FE50CBB-3422-418C-A456-21AB76C0337C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7FE50CBB-3422-418C-A456-21AB76C0337C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4F95E135-C39D-4764-918A-8B9599F7CC1F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4F95E135-C39D-4764-918A-8B9599F7CC1F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4F95E135-C39D-4764-918A-8B9599F7CC1F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4F95E135-C39D-4764-918A-8B9599F7CC1F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{70CADB13-951D-4DC3-8DFB-6E8342805CD5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{70CADB13-951D-4DC3-8DFB-6E8342805CD5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{70CADB13-951D-4DC3-8DFB-6E8342805CD5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{70CADB13-951D-4DC3-8DFB-6E8342805CD5}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{D61FA64A-3721-4C3C-AD04-A64676E96C83} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
+		{3AFD5689-5A81-47B9-B013-1B240CC4D9DC} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
+		{7FE50CBB-3422-418C-A456-21AB76C0337C} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
+		{4F95E135-C39D-4764-918A-8B9599F7CC1F} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
+		{70CADB13-951D-4DC3-8DFB-6E8342805CD5} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {AEA18A26-7FF6-4DF2-A473-F197CCE51B0E}
+	EndGlobalSection
+EndGlobal

@@ -1,0 +1,53 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+	<PropertyGroup>
+		<TargetFramework>net8.0</TargetFramework>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<Nullable>enable</Nullable>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<!-- Validation -->
+		<PackageReference Include="FluentValidation" Version="12.1.1" />
+		<PackageReference Include="FluentValidation.DependencyInjectionExtensions" Version="12.1.1" />
+
+		<!-- Options -->
+		<PackageReference Include="Microsoft.Extensions.Options" Version="8.0.0" />
+		<PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="8.0.0" />
+
+		<!-- Authentication - استخدم JwtBearer فقط -->
+		<PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.0" />
+		<PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.15.0" />
+		<!-- Entity Framework Core -->
+		<PackageReference Include="Microsoft.EntityFrameworkCore" Version="8.0.0" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="8.0.0" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="8.0.0">
+			<PrivateAssets>all</PrivateAssets>
+			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+		</PackageReference>
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="8.0.0">
+			<PrivateAssets>all</PrivateAssets>
+			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+		</PackageReference>
+
+		<!-- Email -->
+		<PackageReference Include="MailKit" Version="4.8.0" />
+		<PackageReference Include="MimeKit" Version="4.8.0" />
+
+		<!-- File Storage - اختر واحدة فقط -->
+
+		<!-- خيار 1: Google Cloud Storage (موصى به) -->
+		<PackageReference Include="Google.Cloud.Storage.V1" Version="4.10.0" />
+		<PackageReference Include="Google.Apis.Auth" Version="1.68.0" />
+
+		<!-- خيار 2: Azure Blob Storage (بديل ممتاز) -->
+		<!-- <PackageReference Include="Azure.Storage.Blobs" Version="12.22.0" /> -->
+
+		<!-- خيار 3: AWS S3 (بديل آخر) -->
+		<!-- <PackageReference Include="AWSSDK.S3" Version="3.7.400" /> -->
+
+	</ItemGroup>
+
+	<ItemGroup>
+		<ProjectReference Include="..\CosmeticsStore.Domain\CosmeticsStore.Domain.csproj" />
+	</ItemGroup>
+</Project>

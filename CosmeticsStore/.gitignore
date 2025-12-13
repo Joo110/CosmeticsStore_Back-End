@@ -1,0 +1,46 @@
+﻿# Visual Studio
+.vs/
+.vscode/
+bin/
+obj/
+Debug/
+Release/
+TestResults/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# Rider
+.idea/
+
+# dotnet
+*.db
+*.db-journal
+*.pfx
+*.publishsettings
+secrets.json
+
+# ASP.NET Core
+appsettings*.json
+wwwroot/uploads/
+
+# Node (if any frontend)
+node_modules/
+dist/
+build/
+
+# Logs
+*.log
+
+# User secrets (if using Secret Manager)
+secrets.json
+
+# Local env files
+.env
+.env.*.local
+
+# JetBrains Rider caches
+.idea/
+
+# Git LFS placeholder (if using)
