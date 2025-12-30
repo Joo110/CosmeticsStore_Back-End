@@ -30,7 +30,8 @@ namespace CosmeticsStore.Application.Order.GetOrderById
                 OrderId = order.Id,
                 UserId = order.UserId,
                 Status = order.Status,
-                ShippingAddressId = order.ShippingAddressId,
+                ShippingAddress = order.ShippingAddress,
+                PhoneNumber = order.PhoneNumber,
                 TotalAmount = order.TotalAmount,
                 TotalCurrency = order.TotalCurrency,
                 CreatedAtUtc = order.CreatedAtUtc,
@@ -38,7 +39,7 @@ namespace CosmeticsStore.Application.Order.GetOrderById
                 Items = order.Items?.Select(i => new OrderResponse.OrderItemResponse
                 {
                     OrderItemId = i.Id,
-                    ProductId = i.ProductVariantId,
+                    ProductVariantId = i.ProductVariantId,
                     Quantity = i.Quantity,
                     UnitPrice = i.UnitPriceAmount,
                     Currency = i.UnitPriceCurrency

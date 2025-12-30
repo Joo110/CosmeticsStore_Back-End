@@ -49,6 +49,42 @@ namespace CosmeticsStore.Infrastructure.Persistence.Repositories
         }
 
 
+        public async Task<List<OrderModel>> GetUserOrdersAsync(Guid userId, CancellationToken cancellationToken = default)
+        {
+            var ordersData = await _db.Orders
+                .Where(o => o.UserId == userId)
+                .Include(o => o.User)
+                .Include(o => o.Items)
+                    .ThenInclude(oi => oi.ProductVariant)
+                        .ThenInclude(pv => pv.Product)
+                .OrderByDescending(o => o.CreatedAtUtc)
+                .AsNoTracking()
+                .ToListAsync(cancellationToken);
+
+            var result = ordersData.Select(order => new OrderModel
+            {
+                Id = order.Id,
+                UserName = order.User.FullName,
+                CreatedAtUtc = order.CreatedAtUtc,
+                TotalCurrency = order.Items.FirstOrDefault()?.UnitPriceCurrency ?? "EGP",
+                Items = order.Items.Select(oi => new OrderItemModel
+                {
+                    Id = oi.Id,
+                    ProductName = oi.ProductVariant.Product.Name,
+                    Quantity = oi.Quantity,
+                    UnitPriceAmount = oi.UnitPriceAmount,
+                    UnitPriceCurrency = oi.UnitPriceCurrency,
+                    ItemTotalPrice = oi.Quantity * oi.UnitPriceAmount
+                }).ToList()
+            }).ToList();
+
+            foreach (var order in result)
+            {
+                order.TotalAmount = order.Items.Sum(i => i.ItemTotalPrice);
+            }
+
+            return result;
+        }
 
         public async Task<Order?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
         {

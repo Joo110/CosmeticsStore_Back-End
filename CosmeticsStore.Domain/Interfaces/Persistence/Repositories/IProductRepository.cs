@@ -22,6 +22,7 @@ namespace CosmeticsStore.Domain.Interfaces.Persistence.Repositories
         Task<Product?> GetBySlugAsync(string slug, CancellationToken cancellationToken = default);
 
         Task<ProductVariant?> GetVariantBySkuAsync(string sku, CancellationToken cancellationToken = default);
+        Task<Product?> GetByIdForUpdateAsync(Guid id, CancellationToken cancellationToken = default); // ⭐ جديدة
 
         Task<Product> CreateAsync(Product product, CancellationToken cancellationToken = default);
 
@@ -30,6 +31,7 @@ namespace CosmeticsStore.Domain.Interfaces.Persistence.Repositories
         Task DeleteAsync(Guid id, CancellationToken cancellationToken = default);
 
         Task<IEnumerable<Product>> GetByCategoryAsync(Guid categoryId, CancellationToken cancellationToken = default);
+        Task<IEnumerable<Product>> GetByCategoryNameAsync(string categoryName, CancellationToken cancellationToken = default);
 
         Task<IEnumerable<Product>> GetTopRatedAsync(int count, CancellationToken cancellationToken = default);
     }

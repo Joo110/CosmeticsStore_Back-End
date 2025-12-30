@@ -24,7 +24,7 @@ namespace CosmeticsStore.Application.Carts.Delete
             if (cart == null)
                 throw new CartNotFoundException("Cart not found for this user.");
 
-            await _cartRepository.DeleteAsync(cart.Id, cancellationToken);
+            await _cartRepository.DeleteAsync(cart, cancellationToken);
             return Unit.Value;
         }
     }

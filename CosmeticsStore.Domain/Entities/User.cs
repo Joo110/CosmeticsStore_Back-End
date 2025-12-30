@@ -23,7 +23,6 @@ namespace CosmeticsStore.Domain.Entities
         public DateTime CreatedAtUtc { get; set; }
         public DateTime? ModifiedAtUtc { get; set; }
 
-        // اختياري: لتسهيل الـ JWT أو السياسات
         public bool IsActive { get; set; } = true;
         public bool IsEmailConfirmed { get; set; } = false;
     }

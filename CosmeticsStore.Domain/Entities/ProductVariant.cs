@@ -10,13 +10,11 @@ namespace CosmeticsStore.Domain.Entities
     {
         public Guid ProductId { get; set; }
         public virtual Product? Product { get; set; }
-
         public string Sku { get; set; } = null!;
         public string? Title { get; set; }
 
         public decimal PriceAmount { get; set; }
         public string PriceCurrency { get; set; } = "EGP";
-
         public int StockQuantity { get; set; }
         public bool IsActive { get; set; }
 

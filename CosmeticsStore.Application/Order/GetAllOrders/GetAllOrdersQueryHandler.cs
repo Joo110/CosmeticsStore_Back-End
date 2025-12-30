@@ -1,6 +1,7 @@
 ﻿using CosmeticsStore.Application.Order;
 using CosmeticsStore.Application.Order.AddOrder;
 using CosmeticsStore.Application.Order.GetAllOrders.CosmeticsStore.Application.Order.GetAllOrders;
+using CosmeticsStore.Domain.Entities;
 using CosmeticsStore.Domain.Interfaces.Persistence.Repositories;
 using CosmeticsStore.Domain.Models;
 using MediatR;
@@ -34,7 +35,8 @@ namespace CosmeticsStore.Application.Order.GetAllOrders
                 OrderId = m.Id,
                 UserId = m.UserId,
                 Status = m.Status,
-                ShippingAddressId = m.ShippingAddress.Id,
+                ShippingAddress = m.ShippingAddress,
+                PhoneNumber = m.PhoneNumber,
                 TotalAmount = m.TotalAmount,
                 TotalCurrency = m.TotalCurrency,
                 CreatedAtUtc = m.CreatedAtUtc,
@@ -42,7 +44,7 @@ namespace CosmeticsStore.Application.Order.GetAllOrders
                 Items = m.Items?.Select(i => new OrderResponse.OrderItemResponse
                 {
                     OrderItemId = i.Id,
-                    ProductId = i.ProductVariantId,
+                    ProductVariantId = i.ProductVariantId,
                     Quantity = i.Quantity,
                     UnitPrice = i.UnitPriceAmount,
                     Currency = i.UnitPriceCurrency

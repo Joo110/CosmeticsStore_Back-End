@@ -18,5 +18,10 @@ namespace CosmeticsStore.Domain.Entities
         public decimal UnitPriceAmount { get; set; }
         public string UnitPriceCurrency { get; set; } = "EGP";
         public string? Title { get; set; }
+        public DateTime CreatedAtUtc { get; set; }
+        public DateTime? ModifiedAtUtc { get; set; }
+
+        public decimal LineTotal => UnitPriceAmount * Quantity;
+
     }
 }

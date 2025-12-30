@@ -1,15 +1,11 @@
 ﻿using CosmeticsStore.Domain.Entities;
 using CosmeticsStore.Domain.Interfaces.Persistence.Repositories;
 using MediatR;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace CosmeticsStore.Application.Product.AddProduct
 {
-    public class AddProductCommandHandler : IRequestHandler<AddProductCommand, CosmeticsStore.Application.Product.AddProduct.ProductResponse>
+    public class AddProductCommandHandler
+        : IRequestHandler<AddProductCommand, ProductResponse>
     {
         private readonly IProductRepository _productRepository;
 
@@ -18,9 +14,11 @@ namespace CosmeticsStore.Application.Product.AddProduct
             _productRepository = productRepository;
         }
 
-        public async Task<CosmeticsStore.Application.Product.AddProduct.ProductResponse> Handle(AddProductCommand request, CancellationToken cancellationToken)
+        public async Task<ProductResponse> Handle(
+            AddProductCommand request,
+            CancellationToken cancellationToken)
         {
-            var product = new CosmeticsStore.Domain.Entities.Product
+            var product = new Domain.Entities.Product
             {
                 Name = request.Name,
                 Slug = request.Slug,
@@ -30,13 +28,14 @@ namespace CosmeticsStore.Application.Product.AddProduct
                 CreatedAtUtc = DateTime.UtcNow
             };
 
-            // map variants if provided (adjust fields to match your ProductVariant entity)
+            // ⭐ VARIANTS
             if (request.Variants != null && request.Variants.Any())
             {
                 foreach (var v in request.Variants)
                 {
                     product.Variants.Add(new ProductVariant
                     {
+                        Product = product,
                         Sku = v.Sku,
                         PriceAmount = v.PriceAmount,
                         PriceCurrency = v.PriceCurrency,
@@ -46,13 +45,14 @@ namespace CosmeticsStore.Application.Product.AddProduct
                 }
             }
 
-            // map media if provided (adjust to your Media entity)
+            // ⭐ MEDIA
             if (request.Media != null && request.Media.Any())
             {
                 foreach (var m in request.Media)
                 {
                     product.Media.Add(new CosmeticsStore.Domain.Entities.Media
                     {
+                        OwnerId = product.Id,
                         Url = m.Url,
                         FileName = m.FileName,
                         ContentType = m.ContentType,
@@ -65,7 +65,7 @@ namespace CosmeticsStore.Application.Product.AddProduct
 
             var created = await _productRepository.CreateAsync(product, cancellationToken);
 
-            return new CosmeticsStore.Application.Product.AddProduct.ProductResponse
+            return new ProductResponse
             {
                 ProductId = created.Id,
                 Name = created.Name,
@@ -75,7 +75,8 @@ namespace CosmeticsStore.Application.Product.AddProduct
                 IsPublished = created.IsPublished,
                 CreatedAtUtc = created.CreatedAtUtc,
                 ModifiedAtUtc = created.ModifiedAtUtc,
-                Variants = created.Variants?.Select(v => new CosmeticsStore.Application.Product.AddProduct.ProductResponse.ProductVariantResponse
+
+                Variants = created.Variants.Select(v => new ProductResponse.ProductVariantResponse
                 {
                     ProductVariantId = v.Id,
                     Sku = v.Sku,
@@ -84,15 +85,16 @@ namespace CosmeticsStore.Application.Product.AddProduct
                     Stock = v.StockQuantity,
                     IsActive = v.IsActive
                 }).ToList(),
-                Media = created.Media?.Select(mm => new CosmeticsStore.Application.Product.AddProduct.ProductResponse.MediaResponse
+
+                Media = created.Media.Select(m => new ProductResponse.MediaResponse
                 {
-                    MediaId = mm.Id,
-                    Url = mm.Url,
-                    FileName = mm.FileName,
-                    ContentType = mm.ContentType,
-                    SizeInBytes = mm.SizeInBytes,
-                    IsPrimary = mm.IsPrimary,
-                    CreatedAtUtc = mm.CreatedAtUtc
+                    MediaId = m.Id,
+                    Url = m.Url,
+                    FileName = m.FileName,
+                    ContentType = m.ContentType,
+                    SizeInBytes = m.SizeInBytes,
+                    IsPrimary = m.IsPrimary,
+                    CreatedAtUtc = m.CreatedAtUtc
                 }).ToList()
             };
         }

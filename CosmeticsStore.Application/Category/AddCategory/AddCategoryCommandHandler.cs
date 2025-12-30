@@ -16,13 +16,14 @@ namespace CosmeticsStore.Application.Category.AddCategory
         {
             var category = new Domain.Entities.Category
             {
+                Id = Guid.NewGuid(), 
                 Name = request.Name,
                 Description = request.Description,
                 CreatedAtUtc = DateTime.UtcNow
             };
 
             await _categoryRepository.CreateAsync(category, cancellationToken);
-            return category.CategoryId;
+            return category.Id;
         }
     }
 }

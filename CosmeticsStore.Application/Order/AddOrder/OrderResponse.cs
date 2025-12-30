@@ -11,7 +11,8 @@ namespace CosmeticsStore.Application.Order.AddOrder
         public Guid OrderId { get; set; }
         public Guid UserId { get; set; }
         public string Status { get; set; } = default!;
-        public Guid? ShippingAddressId { get; set; }
+        public string ShippingAddress { get; set; } = default!;
+        public string PhoneNumber { get; set; } = default!;
 
         public List<OrderItemResponse>? Items { get; set; }
         public List<PaymentResponse>? Payments { get; set; }
@@ -25,7 +26,7 @@ namespace CosmeticsStore.Application.Order.AddOrder
         public class OrderItemResponse
         {
             public Guid OrderItemId { get; set; }
-            public Guid ProductId { get; set; }
+            public Guid ProductVariantId { get; set; }
             public int Quantity { get; set; }
             public decimal UnitPrice { get; set; }
             public string Currency { get; set; } = "EGP";

@@ -1,12 +1,11 @@
-﻿using System;
+﻿using CosmeticsStore.Domain.Entities;
+using CosmeticsStore.Infrastructure.Configurations;
+using Microsoft.EntityFrameworkCore;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net;
-using System.Reflection.Emit;
 using System.Text;
 using System.Threading.Tasks;
-using CosmeticsStore.Domain.Entities;
-using Microsoft.EntityFrameworkCore;
 
 namespace CosmeticsStore.Infrastructure.Persistence.DbContexts
 {
@@ -15,9 +14,11 @@ namespace CosmeticsStore.Infrastructure.Persistence.DbContexts
         public AppDbContext(DbContextOptions<AppDbContext> options)
             : base(options)
         {
+            Console.WriteLine("🔥 DB CONNECTION => " + Database.GetConnectionString());
         }
 
         public DbSet<User> Users => Set<User>();
+        public DbSet<Role> Roles => Set<Role>();
         public DbSet<Product> Products => Set<Product>();
         public DbSet<Category> Categories => Set<Category>();
         public DbSet<Order> Orders => Set<Order>();
@@ -28,11 +29,14 @@ namespace CosmeticsStore.Infrastructure.Persistence.DbContexts
         public DbSet<Coupon> Coupons => Set<Coupon>();
         public DbSet<Address> Addresses => Set<Address>();
         public DbSet<Media> Media => Set<Media>();
+        public DbSet<ProductVariant> ProductVariant => Set<ProductVariant>();
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.ApplyConfigurationsFromAssembly(typeof(AppDbContext).Assembly);
             base.OnModelCreating(modelBuilder);
+            modelBuilder.ApplyConfiguration(new UserConfiguration());
+            modelBuilder.ApplyConfiguration(new RoleConfiguration());
         }
     }
 }

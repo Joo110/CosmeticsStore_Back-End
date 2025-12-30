@@ -10,7 +10,8 @@ namespace CosmeticsStore.Application.Order.AddOrder
     public class AddOrderCommand : IRequest<OrderResponse>
     {
         public Guid UserId { get; set; }
-        public Guid? ShippingAddressId { get; set; }
+        public string ShippingAddress { get; set; } = default!;
+        public string PhoneNumber { get; set; } = default!;
         public string Status { get; set; } = "Draft";
 
         // Optional: items to create with the order.
@@ -22,7 +23,7 @@ namespace CosmeticsStore.Application.Order.AddOrder
         // DTO for client to send order items (adjust fields to match your OrderItem entity)
         public class CreateOrderItemDto
         {
-            public Guid ProductId { get; set; }
+            public Guid ProductVariantId { get; set; }
             public int Quantity { get; set; }
             public decimal UnitPrice { get; set; }
             public string Currency { get; set; } = "EGP";

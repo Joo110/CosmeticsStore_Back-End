@@ -12,12 +12,14 @@ namespace CosmeticsStore.Domain.Models
         public int PageIndex { get; }
         public int TotalPages { get; }
         public int TotalCount { get; }
+        public int PageSize { get; }
 
         public PaginatedList(IEnumerable<T> items, int count, int pageIndex, int pageSize)
         {
             Items = items.ToList().AsReadOnly();
             TotalCount = count;
             PageIndex = pageIndex;
+            PageSize = pageSize;
             TotalPages = (int)Math.Ceiling(count / (double)pageSize);
         }
     }

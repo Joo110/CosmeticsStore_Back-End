@@ -1,10 +1,6 @@
-﻿using CosmeticsStore.Application.Carts.GetById;
+﻿using CosmeticsStore.Application.Carts.Common;
+using CosmeticsStore.Application.Carts.GetById;
 using MediatR;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace CosmeticsStore.Application.Carts.Create
 {
@@ -18,11 +14,5 @@ namespace CosmeticsStore.Application.Carts.Create
             UserId = userId;
             Items = items;
         }
-    }
-
-    public class CartItemDto
-    {
-        public Guid ProductId { get; set; }
-        public int Quantity { get; set; }
     }
 }

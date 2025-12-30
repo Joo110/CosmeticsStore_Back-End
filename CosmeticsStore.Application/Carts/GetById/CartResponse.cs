@@ -10,15 +10,21 @@ namespace CosmeticsStore.Application.Carts.GetById
     {
         public Guid Id { get; init; }
         public Guid UserId { get; init; }
-        public IReadOnlyList<CartItemResponse> Items { get; init; }
-        public decimal TotalPrice { get; init; }
+        public IReadOnlyList<CartItemResponse> Items { get; init; } = Array.Empty<CartItemResponse>();
+        public decimal TotalAmount { get; init; }
+        public string Currency { get; init; } = "EGP";
+        public DateTime CreatedAtUtc { get; init; }
+        public DateTime? ModifiedAtUtc { get; init; }
     }
 
     public class CartItemResponse
     {
         public Guid Id { get; init; }
-        public Guid ProductId { get; init; }
+        public Guid ProductVariantId { get; init; }
+        public string? Title { get; init; }
+        public decimal UnitPriceAmount { get; init; } 
+        public string UnitPriceCurrency { get; init; } = "EGP";
         public int Quantity { get; init; }
-        public decimal SubTotal { get; init; }
+        public decimal LineTotal { get; init; }
     }
 }

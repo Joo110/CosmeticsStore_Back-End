@@ -6,7 +6,8 @@ using MediatR;
 
 namespace CosmeticsStore.Application.Carts.RemoveItem
 {
-    public class RemoveItemCommandHandler : IRequestHandler<RemoveItemCommand, CartResponse>
+    public class RemoveItemCommandHandler
+        : IRequestHandler<RemoveItemCommand, CartResponse>
     {
         private readonly ICartRepository _cartRepository;
         private readonly IMapper _mapper;
@@ -19,18 +20,12 @@ namespace CosmeticsStore.Application.Carts.RemoveItem
 
         public async Task<CartResponse> Handle(RemoveItemCommand request, CancellationToken cancellationToken)
         {
-            var cart = await _cartRepository.GetByUserIdAsync(request.UserId, cancellationToken);
-            if (cart == null)
-                throw new CartNotFoundException("Cart not found for this user.");
+            await _cartRepository.RemoveItemAsync(request.CartId, request.ItemId, cancellationToken);
 
-            var item = cart.Items.FirstOrDefault(i => i.Id == request.ProductId);
-            if (item != null)
-            {
-                cart.Items.Remove(item);
-                await _cartRepository.UpdateAsync(cart, cancellationToken);
-            }
+            var updatedCart = await _cartRepository.GetByIdAsync(request.CartId, cancellationToken);
 
-            return _mapper.Map<CartResponse>(cart);
+            return _mapper.Map<CartResponse>(updatedCart);
         }
     }
+
 }

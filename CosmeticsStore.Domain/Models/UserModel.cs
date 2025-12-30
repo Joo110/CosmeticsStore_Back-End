@@ -14,5 +14,7 @@ namespace CosmeticsStore.Domain.Models
         public string? PhoneNumber { get; set; }
         public DateTime CreatedAtUtc { get; set; }
         public DateTime? ModifiedAtUtc { get; set; }
+        public List<string> Roles { get; set; } = new List<string>();
+
     }
 }

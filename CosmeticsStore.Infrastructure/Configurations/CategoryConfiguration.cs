@@ -15,6 +15,8 @@ namespace CosmeticsStore.Infrastructure.Configurations
         {
             builder.ToTable("Categories");
             builder.HasKey(x => x.Id);
+            builder.Property(x => x.Id).HasColumnName("Id");
+
 
 
             builder.Property(x => x.Name)
@@ -25,11 +27,10 @@ namespace CosmeticsStore.Infrastructure.Configurations
             builder.Property(x => x.Slug).HasMaxLength(150).IsRequired(false);
             builder.Property(x => x.Description).HasMaxLength(2000).IsRequired(false);
 
-
             builder.HasMany(c => c.Products)
-            .WithOne(p => p.Category)
-            .HasForeignKey(p => p.CategoryId)
-            .OnDelete(DeleteBehavior.Restrict);
+                   .WithOne(p => p.Category)
+                   .HasForeignKey(p => p.CategoryId)
+                   .OnDelete(DeleteBehavior.Restrict);
 
 
             builder.Property(x => x.CreatedAtUtc).IsRequired();

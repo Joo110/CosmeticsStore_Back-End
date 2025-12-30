@@ -19,13 +19,23 @@ namespace CosmeticsStore.Application.Media.AddMedia
 
         public async Task<MediaResponse> Handle(AddMediaCommand request, CancellationToken cancellationToken)
         {
+            var file = request.File;
+
+            // حفظ الصورة على القرص
+            var fileName = $"{Guid.NewGuid()}{Path.GetExtension(file.FileName)}";
+            var uploadPath = Path.Combine("wwwroot", "uploads", fileName);
+            Directory.CreateDirectory(Path.GetDirectoryName(uploadPath)!);
+
+            using var stream = new FileStream(uploadPath, FileMode.Create);
+            await file.CopyToAsync(stream, cancellationToken);
+
             var media = new CosmeticsStore.Domain.Entities.Media
             {
                 OwnerId = request.OwnerId,
-                Url = request.Url,
-                FileName = request.FileName,
-                ContentType = request.ContentType,
-                SizeInBytes = request.SizeInBytes,
+                Url = $"/uploads/{fileName}",
+                FileName = file.FileName,
+                ContentType = file.ContentType,
+                SizeInBytes = file.Length,
                 IsPrimary = request.IsPrimary,
                 CreatedAtUtc = DateTime.UtcNow
             };
@@ -45,5 +55,6 @@ namespace CosmeticsStore.Application.Media.AddMedia
                 ModifiedAtUtc = created.ModifiedAtUtc
             };
         }
+
     }
 }

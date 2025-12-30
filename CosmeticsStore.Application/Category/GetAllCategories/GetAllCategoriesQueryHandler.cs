@@ -27,7 +27,7 @@ namespace CosmeticsStore.Application.Category.GetAllCategories
             {
                 result.Add(new CategoryResponse
                 {
-                    CategoryId = category.CategoryId,
+                    Id = category.Id,
                     Name = category.Name,
                     Description = category.Description,
                     CreatedAtUtc = category.CreatedAtUtc

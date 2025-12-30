@@ -23,7 +23,8 @@ namespace CosmeticsStore.Application.Order.AddOrder
             var order = new CosmeticsStore.Domain.Entities.Order
             {
                 UserId = request.UserId,
-                ShippingAddressId = request.ShippingAddressId,
+                ShippingAddress = request.ShippingAddress,
+                PhoneNumber = request.PhoneNumber,
                 Status = request.Status,
                 TotalAmount = request.TotalAmount,
                 TotalCurrency = request.TotalCurrency,
@@ -36,7 +37,8 @@ namespace CosmeticsStore.Application.Order.AddOrder
                 {
                     order.Items.Add(new OrderItem
                     {
-                        Id = it.ProductId,
+                        Id = Guid.NewGuid(),
+                        ProductVariantId = it.ProductVariantId,
                         Quantity = it.Quantity,
                         UnitPriceAmount = it.UnitPrice,
                         UnitPriceCurrency = it.Currency
@@ -45,13 +47,13 @@ namespace CosmeticsStore.Application.Order.AddOrder
             }
 
             var created = await _orderRepository.CreateAsync(order, cancellationToken);
-
             return new OrderResponse
             {
                 OrderId = created.Id,
                 UserId = created.UserId,
                 Status = created.Status,
-                ShippingAddressId = created.ShippingAddressId,
+                ShippingAddress = request.ShippingAddress,
+                PhoneNumber = request.PhoneNumber,
                 TotalAmount = created.TotalAmount,
                 TotalCurrency = created.TotalCurrency,
                 CreatedAtUtc = created.CreatedAtUtc,
@@ -59,7 +61,7 @@ namespace CosmeticsStore.Application.Order.AddOrder
                 Items = created.Items?.Select(i => new OrderResponse.OrderItemResponse
                 {
                     OrderItemId = i.Id,
-                    ProductId = i.ProductVariantId,
+                    ProductVariantId = i.ProductVariantId,
                     Quantity = i.Quantity,
                     UnitPrice = i.UnitPriceAmount,
                     Currency = i.UnitPriceCurrency

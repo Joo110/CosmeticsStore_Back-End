@@ -10,23 +10,17 @@ namespace CosmeticsStore.Domain.Interfaces.Persistence.Repositories
 {
     public interface ICartRepository
     {
-        Task<bool> ExistsAsync(Expression<Func<Cart, bool>> predicate,
-                               CancellationToken cancellationToken = default);
+        Task<Cart?> GetByIdAsync(Guid cartId, CancellationToken cancellationToken);
+        Task<Cart?> GetByIdForUpdateAsync(Guid cartId, CancellationToken cancellationToken);
 
-        Task<Cart?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default);
-
-        Task<Cart?> GetByUserIdAsync(Guid userId, CancellationToken cancellationToken = default);
-
-        Task<Cart> CreateAsync(Cart cart, CancellationToken cancellationToken = default);
-
-        Task UpdateAsync(Cart cart, CancellationToken cancellationToken = default);
-
-        Task DeleteAsync(Guid id, CancellationToken cancellationToken = default);
-
+        Task<Cart?> GetByUserIdAsync(Guid userId, CancellationToken cancellationToken);
+        Task<Cart?> GetByUserIdForUpdateAsync(Guid userId, CancellationToken cancellationToken);
         Task AddItemAsync(CartItem item, CancellationToken cancellationToken = default);
-
-        Task RemoveItemAsync(Guid cartItemId, CancellationToken cancellationToken = default);
-
-        Task ClearCartAsync(Guid cartId, CancellationToken cancellationToken = default);
+        Task CreateAsync(Cart cart, CancellationToken cancellationToken);
+        Task DeleteAsync(Cart cart, CancellationToken cancellationToken);
+        Task RemoveItemAsync(Guid cartId, Guid itemId, CancellationToken cancellationToken);
+        Task AddItemToCartAsync(Guid cartId, CartItem item, CancellationToken cancellationToken = default); // ✅
+        Task UpdateAsync(Cart cart, CancellationToken cancellationToken);
+        Task SaveChangesAsync(CancellationToken cancellationToken);
     }
 }

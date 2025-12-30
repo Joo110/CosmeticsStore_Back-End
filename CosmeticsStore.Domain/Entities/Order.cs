@@ -12,8 +12,9 @@ namespace CosmeticsStore.Domain.Entities
         public virtual User? User { get; set; }
 
         public string Status { get; set; } = "Draft"; // Draft, PendingPayment, Paid, Processing, Shipped, Completed, Cancelled
-        public Guid? ShippingAddressId { get; set; }
-        public virtual Address? ShippingAddress { get; set; }
+        public string ShippingAddress { get; set; } = default!;
+        public string PhoneNumber { get; set; } = default!;
+
 
         // Navigation
         public virtual ICollection<OrderItem> Items { get; set; } = new List<OrderItem>();

@@ -23,7 +23,7 @@ namespace CosmeticsStore.Application.Category.GetCategoryById
 
             return new CategoryResponse
             {
-                CategoryId = category.CategoryId,
+                Id = category.Id,
                 Name = category.Name,
                 Description = category.Description,
                 CreatedAtUtc = category.CreatedAtUtc

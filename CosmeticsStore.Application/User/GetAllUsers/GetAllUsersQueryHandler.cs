@@ -35,21 +35,19 @@ namespace CosmeticsStore.Application.User.GetAllUsers
                 Email = m.Email,
                 FullName = m.FullName,
                 PhoneNumber = m.PhoneNumber,
-                Roles = null,
+                Roles = m.Roles,
                 CreatedAtUtc = m.CreatedAtUtc,
                 ModifiedAtUtc = m.ModifiedAtUtc
-            });
+            }).ToList();
 
             if (!string.IsNullOrWhiteSpace(request.Role))
             {
-                items = items.Where(u => u.Roles != null && u.Roles.Contains(request.Role));
+                items = items.Where(u => u.Roles != null && u.Roles.Contains(request.Role)).ToList();
             }
 
-            var itemsList = items.ToList();
-
             var result = new PaginatedList<CosmeticsStore.Application.User.AddUser.UserResponse>(
-                itemsList,
-                itemsList.Count, // if server filtering not used this is filtered count
+                items,
+                items.Count,
                 paged.PageIndex,
                 request.PageSize
             );

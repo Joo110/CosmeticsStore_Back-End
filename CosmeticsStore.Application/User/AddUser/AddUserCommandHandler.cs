@@ -1,66 +1,90 @@
 ﻿using CosmeticsStore.Domain.Entities;
-using CosmeticsStore.Domain.Interfaces.Persistence.Repositories;
+using CosmeticsStore.Infrastructure.Persistence.DbContexts;
 using MediatR;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace CosmeticsStore.Application.User.AddUser
 {
-    public class AddUserCommandHandler : IRequestHandler<AddUserCommand, CosmeticsStore.Application.User.AddUser.UserResponse>
+    public class AddUserCommandHandler : IRequestHandler<AddUserCommand, UserResponse>
     {
-        private readonly IUserRepository _userRepository;
+        private readonly AppDbContext _db;
         private readonly IPasswordHasher<CosmeticsStore.Domain.Entities.User> _passwordHasher;
-        private readonly IRoleRepository? _roleRepository;
 
-        public AddUserCommandHandler(IUserRepository userRepository, IPasswordHasher<CosmeticsStore.Domain.Entities.User> passwordHasher, IRoleRepository? roleRepository = null)
+        public AddUserCommandHandler(AppDbContext db, IPasswordHasher<CosmeticsStore.Domain.Entities.User> passwordHasher)
         {
-            _userRepository = userRepository;
+            _db = db;
             _passwordHasher = passwordHasher;
-            _roleRepository = roleRepository;
         }
 
         public async Task<UserResponse> Handle(AddUserCommand request, CancellationToken cancellationToken)
         {
+            var existingUser = await _db.Users
+                .FirstOrDefaultAsync(u => u.Email == request.Email, cancellationToken);
+
+            if (existingUser != null)
+            {
+                throw new InvalidOperationException($"User with email {request.Email} already exists.");
+            }
+
             var user = new CosmeticsStore.Domain.Entities.User
             {
                 Email = request.Email,
                 FullName = request.FullName,
                 PhoneNumber = request.PhoneNumber,
-                CreatedAtUtc = DateTime.UtcNow
+                CreatedAtUtc = DateTime.UtcNow,
+                Roles = new List<Role>()
             };
 
-            // hash password
+            // Hash password
             if (!string.IsNullOrEmpty(request.Password))
             {
                 user.PasswordHash = _passwordHasher.HashPassword(user, request.Password);
             }
 
-            // assign roles if any
-            if (request.Roles != null && request.Roles.Any() && _roleRepository != null)
+            if (request.Roles != null && request.Roles.Any())
             {
                 foreach (var roleName in request.Roles.Distinct())
                 {
-                    var role = await _roleRepository.GetByNameAsync(roleName, cancellationToken)
-                               ?? await _roleRepository.CreateAsync(new Role { Name = roleName }, cancellationToken);
+                    var role = await _db.Roles
+                        .FirstOrDefaultAsync(r => r.Name == roleName, cancellationToken);
+
+                    if (role == null)
+                    {
+                        role = new Role { Name = roleName };
+                        _db.Roles.Add(role);
+                        await _db.SaveChangesAsync(cancellationToken);
+                    }
+
                     user.Roles.Add(role);
                 }
             }
 
-            var created = await _userRepository.CreateAsync(user, cancellationToken);
+            _db.Users.Add(user);
+            await _db.SaveChangesAsync(cancellationToken);
+
+            var finalUser = await _db.Users
+                .Include(u => u.Roles)
+                .AsNoTracking()
+                .FirstOrDefaultAsync(u => u.Id == user.Id, cancellationToken);
+
+            if (finalUser == null)
+                throw new Exception("User not found after creation.");
 
             return new UserResponse
             {
-                UserId = created.Id,
-                Email = created.Email,
-                FullName = created.FullName,
-                PhoneNumber = created.PhoneNumber,
-                Roles = created.Roles?.Select(r => r.Name).ToList()
+                UserId = finalUser.Id,
+                Email = finalUser.Email,
+                FullName = finalUser.FullName,
+                PhoneNumber = finalUser.PhoneNumber,
+                Roles = finalUser.Roles.Select(r => r.Name).ToList(),
+                CreatedAtUtc = finalUser.CreatedAtUtc,
+                ModifiedAtUtc = finalUser.ModifiedAtUtc
             };
         }
-
     }
 }

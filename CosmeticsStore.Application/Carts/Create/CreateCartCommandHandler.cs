@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using CosmeticsStore.Application.Carts.GetById;
+using CosmeticsStore.Domain.Entities;
 using CosmeticsStore.Domain.Interfaces.Persistence.Repositories;
 using MediatR;
 
@@ -18,26 +19,24 @@ namespace CosmeticsStore.Application.Carts.Create
 
         public async Task<CartResponse> Handle(CreateCartCommand request, CancellationToken cancellationToken)
         {
-            var existingCart = await _cartRepository.GetByUserIdAsync(request.UserId, cancellationToken);
-            if (existingCart != null)
-            {
-                throw new ("User already has a cart.");
-            }
+            var userId = request.UserId; // or get from current user in controller
+            if (userId == Guid.Empty)
+                throw new InvalidOperationException("UserId is required.");
 
-            var newCart = new Domain.Entities.Cart
+            var existing = await _cartRepository.GetByUserIdAsync(userId, cancellationToken);
+            if (existing != null) throw new InvalidOperationException("User already has a cart.");
+
+            var cart = new Cart
             {
                 Id = Guid.NewGuid(),
-                UserId = request.UserId,
-                Items = request.Items.Select(i => new Domain.Entities.CartItem
-                {
-                    ProductVariantId = i.ProductId,
-                    Quantity = i.Quantity
-                }).ToList()
+                UserId = userId,
+                CreatedAtUtc = DateTime.UtcNow
             };
 
-            await _cartRepository.CreateAsync(newCart, cancellationToken);
+            await _cartRepository.CreateAsync(cart, cancellationToken);
+            await _cartRepository.SaveChangesAsync(cancellationToken);
 
-            return _mapper.Map<CartResponse>(newCart);
+            return _mapper.Map<CartResponse>(cart);
         }
     }
 }

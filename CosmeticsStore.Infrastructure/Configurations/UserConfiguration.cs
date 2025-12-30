@@ -36,13 +36,13 @@ namespace CosmeticsStore.Infrastructure.Configurations
             builder.HasMany(u => u.Addresses)
             .WithOne(a => a.User)
             .HasForeignKey(a => a.UserId)
-            .OnDelete(DeleteBehavior.Cascade); // Addresses belong to user
+            .OnDelete(DeleteBehavior.Cascade);
 
 
             builder.HasMany(u => u.Orders)
             .WithOne(o => o.User)
             .HasForeignKey(o => o.UserId)
-            .OnDelete(DeleteBehavior.Restrict); // preserve orders
+            .OnDelete(DeleteBehavior.Restrict);
 
 
             builder.HasMany(u => u.Reviews)
@@ -52,9 +52,31 @@ namespace CosmeticsStore.Infrastructure.Configurations
 
 
             builder.HasMany(u => u.Carts)
-            .WithOne(c => c.User)
-            .HasForeignKey(c => c.UserId)
-            .OnDelete(DeleteBehavior.Cascade);
+       .WithOne() 
+       .HasForeignKey(c => c.UserId)
+       .OnDelete(DeleteBehavior.Cascade);
+
+            // User ↔ Role (Many-to-Many)
+            builder
+                .HasMany(u => u.Roles)
+                .WithMany(r => r.Users)
+                .UsingEntity<Dictionary<string, object>>(
+                    "UserRoles",
+                    j => j
+                        .HasOne<Role>()
+                        .WithMany()
+                        .HasForeignKey("RoleId")
+                        .OnDelete(DeleteBehavior.Cascade),
+                    j => j
+                        .HasOne<User>()
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade),
+                    j =>
+                    {
+                        j.HasKey("UserId", "RoleId");
+                        j.ToTable("UserRoles");
+                    });
 
 
             // Audit

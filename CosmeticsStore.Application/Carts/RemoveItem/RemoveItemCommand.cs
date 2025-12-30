@@ -10,13 +10,13 @@ namespace CosmeticsStore.Application.Carts.RemoveItem
 {
     public class RemoveItemCommand : IRequest<CartResponse>
     {
-        public Guid UserId { get; }
-        public Guid ProductId { get; }
+        public Guid CartId { get; }
+        public Guid ItemId { get; }
 
-        public RemoveItemCommand(Guid userId, Guid productId)
+        public RemoveItemCommand(Guid cartId, Guid itemId)
         {
-            UserId = userId;
-            ProductId = productId;
+            CartId = cartId;
+            ItemId = itemId;
         }
     }
 }

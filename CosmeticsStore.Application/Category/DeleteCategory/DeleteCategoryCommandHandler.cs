@@ -24,7 +24,7 @@ namespace CosmeticsStore.Application.Category.DeleteCategory
             if (category == null)
                 throw new CategoryNotFoundException("Category not found.");
 
-            await _categoryRepository.DeleteAsync(category.CategoryId, cancellationToken);
+            await _categoryRepository.DeleteAsync(category.Id, cancellationToken);
             return Unit.Value;
         }
     }

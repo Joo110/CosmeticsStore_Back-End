@@ -16,11 +16,11 @@ namespace CosmeticsStore.Infrastructure.Configurations
             builder.ToTable("Carts");
             builder.HasKey(x => x.Id);
 
+            builder.HasOne<User>()             
+                   .WithMany(u => u.Carts)
+                   .HasForeignKey(c => c.UserId)
+                   .OnDelete(DeleteBehavior.Cascade);
 
-            builder.HasOne(c => c.User)
-            .WithMany(u => u.Carts)
-            .HasForeignKey(c => c.UserId)
-            .OnDelete(DeleteBehavior.Cascade);
 
 
             builder.HasMany(c => c.Items)

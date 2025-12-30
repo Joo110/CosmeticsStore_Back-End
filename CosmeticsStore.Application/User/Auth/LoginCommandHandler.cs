@@ -1,4 +1,5 @@
-﻿using CosmeticsStore.Domain.Interfaces.Persistence.Repositories;
+﻿using CosmeticsStore.Application.Common.Security;
+using CosmeticsStore.Domain.Interfaces.Persistence.Repositories;
 using MediatR;
 using Microsoft.AspNetCore.Identity;
 using System;
@@ -12,15 +13,15 @@ namespace CosmeticsStore.Application.User.Auth
     public class LoginCommandHandler : IRequestHandler<LoginCommand, AuthResponse>
     {
         private readonly IUserRepository _userRepository;
-        private readonly IPasswordHasher<CosmeticsStore.Domain.Entities.User> _passwordHasher;
+        private readonly IPasswordService _passwordService;
         private readonly IJwtService _jwtService;
 
         public LoginCommandHandler(IUserRepository userRepository,
-                                   IPasswordHasher<CosmeticsStore.Domain.Entities.User> passwordHasher,
+                                   IPasswordService passwordService,
                                    IJwtService jwtService)
         {
             _userRepository = userRepository;
-            _passwordHasher = passwordHasher;
+            _passwordService = passwordService;
             _jwtService = jwtService;
         }
 
@@ -32,10 +33,11 @@ namespace CosmeticsStore.Application.User.Auth
                 throw new InvalidOperationException("Invalid credentials.");
 
             if (string.IsNullOrEmpty(user.PasswordHash) ||
-                _passwordHasher.VerifyHashedPassword(user, user.PasswordHash, request.Password) != PasswordVerificationResult.Success)
+    !_passwordService.Verify(user, user.PasswordHash, request.Password))
             {
                 throw new InvalidOperationException("Invalid credentials.");
             }
+
 
             var roles = user.Roles?.Select(r => r.Name).ToArray() ?? Array.Empty<string>();
             var token = _jwtService.GenerateToken(

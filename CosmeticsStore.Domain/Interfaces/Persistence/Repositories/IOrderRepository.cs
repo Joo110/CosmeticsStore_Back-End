@@ -14,6 +14,8 @@ namespace CosmeticsStore.Domain.Interfaces.Persistence.Repositories
         Task<bool> ExistsAsync(Expression<Func<Order, bool>> predicate,
                                CancellationToken cancellationToken = default);
 
+        Task<List<OrderModel>> GetUserOrdersAsync(Guid userId, CancellationToken cancellationToken = default);
+
         Task<PaginatedList<OrderModel>> GetForManagementAsync(Query<Order> query,
             CancellationToken cancellationToken = default);
 

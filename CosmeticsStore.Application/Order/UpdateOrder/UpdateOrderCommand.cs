@@ -1,10 +1,5 @@
 ﻿using CosmeticsStore.Application.Order.AddOrder;
 using MediatR;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace CosmeticsStore.Application.Order.UpdateOrder
 {
@@ -13,7 +8,9 @@ namespace CosmeticsStore.Application.Order.UpdateOrder
         public Guid OrderId { get; set; }
 
         public string? Status { get; set; }
-        public Guid? ShippingAddressId { get; set; }
+
+        public string? ShippingAddress { get; set; }
+        public string? PhoneNumber { get; set; }
 
         public List<UpdateOrderItemDto>? Items { get; set; }
 

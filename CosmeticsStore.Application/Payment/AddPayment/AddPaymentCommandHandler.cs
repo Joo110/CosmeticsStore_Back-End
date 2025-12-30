@@ -24,7 +24,7 @@ namespace CosmeticsStore.Application.Payment.AddPayment
                 TransactionId = request.TransactionId,
                 Status = request.Status,
                 CreatedOnUtc = DateTime.UtcNow,
-                CreatedAtUtc = DateTime.UtcNow // maps to CreatedOnUtc via the property in entity
+                CreatedAtUtc = DateTime.UtcNow
             };
 
             var created = await _paymentRepository.CreateAsync(payment, cancellationToken);
