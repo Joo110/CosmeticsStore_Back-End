@@ -15,8 +15,8 @@ namespace CosmeticsStore.Application.Product.AddProduct
         }
 
         public async Task<ProductResponse> Handle(
-            AddProductCommand request,
-            CancellationToken cancellationToken)
+     AddProductCommand request,
+     CancellationToken cancellationToken)
         {
             var product = new Domain.Entities.Product
             {
@@ -45,14 +45,13 @@ namespace CosmeticsStore.Application.Product.AddProduct
                 }
             }
 
-            // ⭐ MEDIA
             if (request.Media != null && request.Media.Any())
             {
                 foreach (var m in request.Media)
                 {
                     product.Media.Add(new CosmeticsStore.Domain.Entities.Media
                     {
-                        OwnerId = product.Id,
+
                         Url = m.Url,
                         FileName = m.FileName,
                         ContentType = m.ContentType,

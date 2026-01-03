@@ -1,32 +1,34 @@
 ﻿using CosmeticsStore.Domain.Entities;
-using CosmeticsStore.Domain.Interfaces.Persistence.Repositories;
 using CosmeticsStore.Domain.Models;
 using CosmeticsStore.Infrastructure.Persistence.DbContexts;
-using Microsoft.EntityFrameworkCore;
 using MediatR;
+using Microsoft.EntityFrameworkCore;
 
 namespace CosmeticsStore.Application.Product.UpdateProduct
 {
-    public class UpdateProductCommandHandler : IRequestHandler<UpdateProductCommand, ProductModel>
+    public class UpdateProductCommandHandler
+        : IRequestHandler<UpdateProductCommand, ProductModel>
     {
-        private readonly IProductRepository _productRepository;
         private readonly AppDbContext _context;
 
-        public UpdateProductCommandHandler(
-            IProductRepository productRepository,
-            AppDbContext context)
+        public UpdateProductCommandHandler(AppDbContext context)
         {
-            _productRepository = productRepository;
             _context = context;
         }
 
-        public async Task<ProductModel> Handle(UpdateProductCommand request, CancellationToken cancellationToken)
+        public async Task<ProductModel> Handle(
+            UpdateProductCommand request,
+            CancellationToken cancellationToken)
         {
-            var product = await _productRepository.GetByIdForUpdateAsync(request.ProductId, cancellationToken);
+            var product = await _context.Products
+                .Include(p => p.Variants)
+                .Include(p => p.Media)
+                .FirstOrDefaultAsync(p => p.Id == request.ProductId, cancellationToken);
 
             if (product == null)
                 throw new KeyNotFoundException($"Product with ID {request.ProductId} not found");
 
+            // 🟢 Update main fields
             product.Name = request.Name;
             product.Slug = request.Slug;
             product.Description = request.Description;
@@ -34,97 +36,99 @@ namespace CosmeticsStore.Application.Product.UpdateProduct
             product.IsPublished = request.IsPublished;
             product.ModifiedAtUtc = DateTime.UtcNow;
 
-            foreach (var variant in product.Variants.ToList())
+            // =========================
+            // 🟢 Variants (Update / Add only)
+            // =========================
+            if (request.Variants != null)
             {
-                _context.Entry(variant).State = EntityState.Detached;
-            }
-
-            foreach (var media in product.Media.ToList())
-            {
-                _context.Entry(media).State = EntityState.Detached;
-            }
-
-            await _context.Database.ExecuteSqlRawAsync(
-                "DELETE FROM [ProductVariants] WHERE [ProductId] = {0}",
-                request.ProductId);
-
-            await _context.Database.ExecuteSqlRawAsync(
-                "DELETE FROM [Media] WHERE [OwnerId] = {0}",
-                request.ProductId);
-
-            product.Variants.Clear();
-            product.Media.Clear();
-
-            if (request.Variants != null && request.Variants.Any())
-            {
-                foreach (var vDto in request.Variants)
+                foreach (var v in request.Variants)
                 {
-                    var newVariant = new ProductVariant
-                    {
-                        Id = Guid.NewGuid(),
-                        ProductId = product.Id,
-                        Sku = vDto.Sku,
-                        PriceAmount = vDto.PriceAmount,
-                        PriceCurrency = vDto.PriceCurrency,
-                        StockQuantity = vDto.Stock,
-                        IsActive = vDto.IsActive,
-                        CreatedAtUtc = DateTime.UtcNow,
-                        ModifiedAtUtc = DateTime.UtcNow
-                    };
+                    var existingVariant = product.Variants
+                        .FirstOrDefault(x => x.Id == v.ProductVariantId);
 
-                    // ⭐ أضف للـ context مباشرة
-                    await _context.Set<ProductVariant>().AddAsync(newVariant, cancellationToken);
-                }
-            }
-
-            // أضف الـ Media الجديدة
-            if (request.Media != null && request.Media.Any())
-            {
-                foreach (var mDto in request.Media)
-                {
-                    if (mDto.MediaId.HasValue && mDto.MediaId != Guid.Empty)
+                    if (existingVariant != null)
                     {
-                        var newMedia = new CosmeticsStore.Domain.Entities.Media
+                        // Update existing
+                        existingVariant.Sku = v.Sku;
+                        existingVariant.PriceAmount = v.PriceAmount;
+                        existingVariant.PriceCurrency = v.PriceCurrency;
+                        existingVariant.StockQuantity = v.Stock;
+                        existingVariant.IsActive = v.IsActive;
+                        existingVariant.ModifiedAtUtc = DateTime.UtcNow;
+                    }
+                    else
+                    {
+                        // Add new
+                        product.Variants.Add(new ProductVariant
                         {
-                            Id = mDto.MediaId.Value,
-                            OwnerId = product.Id,
-                            Url = mDto.Url,
-                            FileName = mDto.FileName,
-                            ContentType = mDto.ContentType,
-                            SizeInBytes = mDto.SizeInBytes,
-                            IsPrimary = mDto.IsPrimary,
+                            Id = Guid.NewGuid(),
+                            ProductId = product.Id,
+                            Sku = v.Sku,
+                            PriceAmount = v.PriceAmount,
+                            PriceCurrency = v.PriceCurrency,
+                            StockQuantity = v.Stock,
+                            IsActive = v.IsActive,
                             CreatedAtUtc = DateTime.UtcNow,
                             ModifiedAtUtc = DateTime.UtcNow
-                        };
-
-                        // ⭐ أضف للـ context مباشرة
-                        await _context.Set<CosmeticsStore.Domain.Entities.Media>().AddAsync(newMedia, cancellationToken);
+                        });
                     }
                 }
             }
 
-            // احفظ التغييرات
+            // =========================
+            // 🟢 Media (Update / Add only)
+            // =========================
+            if (request.Media != null)
+            {
+                foreach (var m in request.Media)
+                {
+                    var existingMedia = product.Media
+                        .FirstOrDefault(x => x.Id == m.MediaId);
+
+                    if (existingMedia != null)
+                    {
+                        existingMedia.Url = m.Url;
+                        existingMedia.FileName = m.FileName;
+                        existingMedia.ContentType = m.ContentType;
+                        existingMedia.SizeInBytes = m.SizeInBytes;
+                        existingMedia.IsPrimary = m.IsPrimary;
+                        existingMedia.ModifiedAtUtc = DateTime.UtcNow;
+                    }
+                    else
+                    {
+                        product.Media.Add(new CosmeticsStore.Domain.Entities.Media
+                        {
+                            Id = Guid.NewGuid(),
+                            OwnerId = product.Id,
+                            Url = m.Url,
+                            FileName = m.FileName,
+                            ContentType = m.ContentType,
+                            SizeInBytes = m.SizeInBytes,
+                            IsPrimary = m.IsPrimary,
+                            CreatedAtUtc = DateTime.UtcNow,
+                            ModifiedAtUtc = DateTime.UtcNow
+                        });
+                    }
+                }
+            }
+
             await _context.SaveChangesAsync(cancellationToken);
 
-            // ⭐ أعد تحميل الـ product بعد الحفظ عشان نجيب الـ relations الجديدة
-            var updatedProduct = await _context.Set<CosmeticsStore.Domain.Entities.Product>()
-                .Include(p => p.Variants)
-                .Include(p => p.Media)
-                .FirstOrDefaultAsync(p => p.Id == request.ProductId, cancellationToken);
-
-            // Return updated product
+            // =========================
+            // 🟢 Response (زي ما هو)
+            // =========================
             return new ProductModel
             {
-                Id = updatedProduct!.Id,
-                Name = updatedProduct.Name,
-                Slug = updatedProduct.Slug,
-                Description = updatedProduct.Description,
-                CategoryId = updatedProduct.CategoryId,
-                IsPublished = updatedProduct.IsPublished,
-                CreatedAtUtc = updatedProduct.CreatedAtUtc,
-                ModifiedAtUtc = updatedProduct.ModifiedAtUtc,
+                Id = product.Id,
+                Name = product.Name,
+                Slug = product.Slug,
+                Description = product.Description,
+                CategoryId = product.CategoryId,
+                IsPublished = product.IsPublished,
+                CreatedAtUtc = product.CreatedAtUtc,
+                ModifiedAtUtc = product.ModifiedAtUtc,
 
-                Variants = updatedProduct.Variants.Select(v => new ProductVariantModel
+                Variants = product.Variants.Select(v => new ProductVariantModel
                 {
                     Id = v.Id,
                     Sku = v.Sku,
@@ -134,10 +138,10 @@ namespace CosmeticsStore.Application.Product.UpdateProduct
                     IsActive = v.IsActive
                 }).ToList(),
 
-                Media = updatedProduct.Media.Select(m => new MediaModel
+                Media = product.Media.Select(m => new MediaModel
                 {
                     Id = m.Id,
-                    OwnerId = m.OwnerId,
+                    OwnerId = product.Id,
                     Url = m.Url,
                     FileName = m.FileName,
                     ContentType = m.ContentType,

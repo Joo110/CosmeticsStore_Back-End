@@ -1,9 +1,10 @@
 ﻿using CosmeticsStore.Domain.Interfaces.Persistence.Repositories;
 using MediatR;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Configuration;
+using System.IO;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace CosmeticsStore.Application.Media.AddMedia
@@ -11,28 +12,33 @@ namespace CosmeticsStore.Application.Media.AddMedia
     public class AddMediaCommandHandler : IRequestHandler<AddMediaCommand, MediaResponse>
     {
         private readonly IMediaRepository _mediaRepository;
+        private readonly IWebHostEnvironment _env;
 
-        public AddMediaCommandHandler(IMediaRepository mediaRepository)
+        public AddMediaCommandHandler(IMediaRepository mediaRepository, IWebHostEnvironment env)
         {
             _mediaRepository = mediaRepository;
+            _env = env;
         }
 
         public async Task<MediaResponse> Handle(AddMediaCommand request, CancellationToken cancellationToken)
         {
             var file = request.File;
 
-            // حفظ الصورة على القرص
             var fileName = $"{Guid.NewGuid()}{Path.GetExtension(file.FileName)}";
-            var uploadPath = Path.Combine("wwwroot", "uploads", fileName);
-            Directory.CreateDirectory(Path.GetDirectoryName(uploadPath)!);
+
+            var uploadsFolder = Path.Combine(_env.WebRootPath ?? "wwwroot", "uploads");
+            Directory.CreateDirectory(uploadsFolder);
+            var uploadPath = Path.Combine(uploadsFolder, fileName);
 
             using var stream = new FileStream(uploadPath, FileMode.Create);
             await file.CopyToAsync(stream, cancellationToken);
 
+            var url = $"/uploads/{fileName}";
+
             var media = new CosmeticsStore.Domain.Entities.Media
             {
                 OwnerId = request.OwnerId,
-                Url = $"/uploads/{fileName}",
+                Url = url,
                 FileName = file.FileName,
                 ContentType = file.ContentType,
                 SizeInBytes = file.Length,
@@ -55,6 +61,5 @@ namespace CosmeticsStore.Application.Media.AddMedia
                 ModifiedAtUtc = created.ModifiedAtUtc
             };
         }
-
     }
 }

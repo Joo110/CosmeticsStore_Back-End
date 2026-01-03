@@ -8,7 +8,8 @@ namespace CosmeticsStore.Domain.Entities
 {
     public class Media : EntityBase, IAuditableEntity
     {
-        public Guid OwnerId { get; set; }    // e.g. Product.Id or other owner
+        public Guid Id { get; set; }
+        public Guid OwnerId { get; set; }
         public string Url { get; set; } = null!;
         public string FileName { get; set; } = null!;
         public string ContentType { get; set; } = null!;
