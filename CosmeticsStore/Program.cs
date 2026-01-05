@@ -1,5 +1,8 @@
-﻿using CosmeticsStore.Application.User.Auth;
+﻿using Asp.Versioning;
+using CosmeticsStore.Application.Common.Security;
+using CosmeticsStore.Application.User.Auth;
 using CosmeticsStore.Domain.Interfaces.Persistence.Repositories;
+using CosmeticsStore.Extensions;
 using CosmeticsStore.Infrastructure.Persistence.DbContexts;
 using CosmeticsStore.Infrastructure.Persistence.Repositories;
 using CosmeticsStore.Middlewares;
@@ -8,17 +11,17 @@ using FluentValidation;
 using MediatR;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
-using System.Text;
-using Asp.Versioning;
-using System.Threading.RateLimiting;
-using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.OpenApi.Models;
 using Serilog;
+using System.Text;
+using System.Threading.RateLimiting;
 
 var builder = WebApplication.CreateBuilder(args);
-
+var port = Environment.GetEnvironmentVariable("PORT") ?? "5000";
+builder.WebHost.UseUrls($"http://0.0.0.0:{port}");
 
 Log.Logger = new LoggerConfiguration()
     .Enrich.FromLogContext()
@@ -31,7 +34,7 @@ Log.Logger = new LoggerConfiguration()
     .ReadFrom.Configuration(builder.Configuration)
     .CreateLogger();
 
-builder.Host.UseSerilog(); // مهم جداً
+builder.Host.UseSerilog();
 // ------------------------------------------------------
 // Controllers
 // ------------------------------------------------------
@@ -104,6 +107,9 @@ builder.Services.AddScoped<ICouponRepository, CouponRepository>();
 builder.Services.AddScoped<IPaymentRepository, PaymentRepository>();
 builder.Services.AddScoped<IMediaRepository, MediaRepository>();
 builder.Services.AddScoped<IInventoryRepository, InventoryRepository>();
+builder.Services.AddScoped<IProductVariantRepository, ProductVariantRepository>();
+builder.Services.AddScoped<IPasswordHasher<CosmeticsStore.Domain.Entities.User>, PasswordHasher<CosmeticsStore.Domain.Entities.User>>();
+builder.Services.AddScoped<IPasswordService, PasswordService>();
 
 // ------------------------------------------------------
 // AutoMapper
@@ -116,6 +122,11 @@ builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 builder.Services.AddValidatorsFromAssemblyContaining<Program>();
 
 builder.Services.AddValidatorsFromAssembly(typeof(Program).Assembly);
+
+builder.Services.AddControllers(options =>
+{
+    options.Filters.Add<ApiExceptionFilter>();
+});
 
 // ------------------------------------------------------
 // JWT Authentication
@@ -162,35 +173,35 @@ builder.Services.AddRateLimiter(options =>
 {
     options.AddFixedWindowLimiter("fixed", limiterOptions =>
     {
-        limiterOptions.PermitLimit = 100;
+        limiterOptions.PermitLimit = 200;
         limiterOptions.Window = TimeSpan.FromMinutes(1);
         limiterOptions.QueueProcessingOrder = QueueProcessingOrder.OldestFirst;
-        limiterOptions.QueueLimit = 5;
+        limiterOptions.QueueLimit = 8;
     });
 
     options.AddSlidingWindowLimiter("sliding", limiterOptions =>
     {
-        limiterOptions.PermitLimit = 100;
+        limiterOptions.PermitLimit = 200;
         limiterOptions.Window = TimeSpan.FromMinutes(1);
-        limiterOptions.SegmentsPerWindow = 6;
+        limiterOptions.SegmentsPerWindow = 8;
         limiterOptions.QueueProcessingOrder = QueueProcessingOrder.OldestFirst;
-        limiterOptions.QueueLimit = 5;
+        limiterOptions.QueueLimit = 8;
     });
 
     options.AddTokenBucketLimiter("token", limiterOptions =>
     {
-        limiterOptions.TokenLimit = 100;
+        limiterOptions.TokenLimit = 200;
         limiterOptions.ReplenishmentPeriod = TimeSpan.FromMinutes(1);
-        limiterOptions.TokensPerPeriod = 100;
+        limiterOptions.TokensPerPeriod = 200;
         limiterOptions.QueueProcessingOrder = QueueProcessingOrder.OldestFirst;
-        limiterOptions.QueueLimit = 5;
+        limiterOptions.QueueLimit = 8;
     });
 
     options.AddConcurrencyLimiter("concurrency", limiterOptions =>
     {
-        limiterOptions.PermitLimit = 50;
+        limiterOptions.PermitLimit = 90;
         limiterOptions.QueueProcessingOrder = QueueProcessingOrder.OldestFirst;
-        limiterOptions.QueueLimit = 10;
+        limiterOptions.QueueLimit = 20;
     });
 
     options.AddPolicy("per-ip", httpContext =>
@@ -198,7 +209,7 @@ builder.Services.AddRateLimiter(options =>
             partitionKey: httpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown",
             factory: _ => new FixedWindowRateLimiterOptions
             {
-                PermitLimit = 10,
+                PermitLimit = 20,
                 Window = TimeSpan.FromMinutes(1)
             }));
 
@@ -209,7 +220,7 @@ builder.Services.AddRateLimiter(options =>
         return RateLimitPartition.GetFixedWindowLimiter(clientIp, _ =>
             new FixedWindowRateLimiterOptions
             {
-                PermitLimit = 1000,
+                PermitLimit = 4000,
                 Window = TimeSpan.FromHours(1)
             });
     });
@@ -241,7 +252,7 @@ builder.Services.AddRateLimiter(options =>
 // ------------------------------------------------------
 // Global Exception Handler
 // ------------------------------------------------------
-builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
+//builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
 builder.Services.AddProblemDetails();
 
 // ------------------------------------------------------
@@ -285,8 +296,13 @@ else
     app.UseHsts();
 }
 
-app.UseHttpsRedirection();
+if (app.Environment.IsDevelopment())
+{
+    app.UseHttpsRedirection();
+}
 app.UseCors("AllowAll");
+
+app.UseStaticFiles();
 
 app.UseRateLimiter();
 
@@ -294,7 +310,7 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 // Global Exception Handler
-app.UseExceptionHandler();
+//app.UseExceptionHandler();
 
 app.MapControllers();
 
@@ -306,7 +322,6 @@ using (var scope = app.Services.CreateScope())
     var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
     try
     {
-        dbContext.Database.Migrate();
         app.Logger.LogInformation("Database migrated successfully");
     }
     catch (Exception ex)
